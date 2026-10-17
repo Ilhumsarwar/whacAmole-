@@ -7,6 +7,8 @@ public class MyFirstWindow{
     static int score = 0;
     static int seconds = 0;
     static int molePosition = -1;
+    static int life = 3;
+    static boolean GameIsRunning = false;
     public static void main(String[] args) {
         JFrame frame = new JFrame("My first window");
         // frame.setLayout(new FlowLayout());
@@ -33,6 +35,10 @@ public class MyFirstWindow{
         JLabel scoreLabel = new JLabel("Score: 0 ", SwingConstants.CENTER);
         scorePanel.add(scoreLabel);
 
+        //life panel
+        JLabel lifeLabel = new JLabel(" Life: 🖤 🖤 🖤 ");
+        scorePanel.add(lifeLabel);
+
         // grid panel
         JButton[] buttons = new JButton[9];
         JPanel board = new JPanel(new GridLayout(3,3));
@@ -53,10 +59,11 @@ public class MyFirstWindow{
         Timer timer = new Timer( 1000, e -> {
 
             if(molePosition != -1) buttons[molePosition].setText("HOLE "+ (molePosition+1));
-            
-            molePosition = random.nextInt(9);
-            buttons[molePosition].setText("MOLE!");
-            System.out.println("tick " + seconds++);
+            if(GameIsRunning){
+                molePosition = random.nextInt(9);
+                buttons[molePosition].setText("MOLE!");
+                System.out.println("tick " + seconds++);
+            }
         });
         
         // if(molePosition != -1) buttons[molePosition].addActionListener(e -> {scoreLabel.setText("Score " + ++score); });
@@ -68,23 +75,38 @@ public class MyFirstWindow{
             scoreLabel.setText("Game Started!");
             score = 0;
             seconds = 0;
+            life = 3;
+            lifeLabel.setText(" Life: 🖤 🖤 🖤 ");
+            GameIsRunning = true;
             timer.start(); // this will start the timer. or else nothing happens
 
         });
+
         resetButton.addActionListener(e -> {
             scoreLabel.setText("Score: 0"); 
             score = 0;
             seconds = 0;
+            life = 3;
+            lifeLabel.setText(" Life: 🖤 🖤 🖤 ");
+            GameIsRunning = false;
             if(molePosition != -1) buttons[molePosition].setText("HOLE "+ (molePosition+1));
-            
+                
             timer.stop(); // this stops the timer..
         });
         
         for(int i=0;i<9;i++){
             int index = i;
             buttons[i].addActionListener(e -> { 
-                if(index == molePosition) scoreLabel.setText("Score " + ++score);
-                else scoreLabel.setText("Score: " + --score);
+                if(index == molePosition && GameIsRunning) scoreLabel.setText("Score " + ++score);
+                else if(GameIsRunning){ 
+                    // scoreLabel.setText("Score: " + --score);
+                    life--;
+                    if(life > 0) lifeLabel.setText(" Life: " + "🖤 ".repeat(life));
+                    else if(life == 0){ 
+                        lifeLabel.setText(" GAME OVER ! ");
+                        GameIsRunning = false;
+                    }                    
+                }
                 });
         }
 
